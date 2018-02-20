@@ -1,20 +1,4 @@
-#include <string.h>
-#include <cstring>
-#include <unistd.h>
-#include <stdio.h>
-#include <netdb.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-#include <strings.h>
-#include <stdlib.h>
-#include <string>
-#include <time.h>
-#include <vector>
+#include "client.h"
 using namespace std;
 
 int main (int argc, char* argv[])
@@ -41,27 +25,13 @@ int main (int argc, char* argv[])
 		return 0;
 	}
 	
-	if((server = gethostbyname(argv[1])) == NULL)
-	{
-		cerr << "Host does not exist" << endl;
-		return 0;
-	}
+	ConfigClientSocket(&svrAdd,argv[1],portNo);
 	
-	bzero((char *) &svrAdd, sizeof(svrAdd));
-	svrAdd.sin_family = AF_INET;
-	
-	bcopy((char *) server -> h_addr, (char *) &svrAdd.sin_addr.s_addr, server -> h_length);
-	
-	svrAdd.sin_port = htons(portNo);
-	
-	if ((socket_connection = connect(listen_socket,(struct sockaddr *) &svrAdd, sizeof(svrAdd))) < 0)
-	{
-		cerr << "Cannot connect!" << endl;
-		return 0;
-	}
+	Connect(listen_socket, svrAdd);
 	
 	for(;;)
 	{
+		//
 		write(listen_socket, &echo, echo_len);
 		bzero(&echo, 300);
 		read(listen_socket, &echo, echo_len);
