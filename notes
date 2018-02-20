@@ -16,8 +16,9 @@ strace -e trace=network
 	//how many requests made to server
 	//amount of data sent to server
 	//amount of time it took for the server to respond (i.e., echo the data back). 
-//	client: IP(of server), requests sent, data sent, lowest RTT, highest RTT, avgRTT
-//	server: (IP(of client), responses sent, data) x # of clients
-
+//structs
+	//client: IP(of server), requests sent, data sent, lowest RTT, highest RTT, avgRTT
+	//	server: (IP(of client), responses sent, data) x # of clients
+//config file or program arguments
 threading time calculation
 	https://stackoverflow.com/questions/27718464/how-do-i-measure-time-per-thread-in-c

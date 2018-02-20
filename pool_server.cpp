@@ -2,7 +2,7 @@
 #include <poll.h>
 
 #define SERV_PORT 8000
-#define MAXLINE 2048 //should be the same on client size
+#define BUFLEN 2048 //should be the same on client size
 #define OPEN_MAX 255
 #define LISTENQ 5
 #define TIMEOUT -1
@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 	int i, maxi, listenfd, connfd, sockfd;
 	int nready;
 	ssize_t n;
-	char buf[MAXLINE];
+	char buf[BUFLEN];
 	socklen_t clilen;
 	struct pollfd client[OPEN_MAX];
 	struct sockaddr_in cliaddr, servaddr;
@@ -24,6 +24,7 @@ int main(int argc, char **argv)
 
 	client[0].fd = listenfd;
 	client[0].events = POLLRDNORM;
+	
 	for(i = 1; i < OPEN_MAX; i++)
 	{
 		// -1 indicates available entry
@@ -68,7 +69,7 @@ int main(int argc, char **argv)
 				continue;
 			
 			if(client[i].revents & (POLLRDNORM | POLLERR)){
-				if((n = read(sockfd, buf, MAXLINE)) < 0){
+				if((n = read(sockfd, buf, BUFLEN)) < 0){
 					if(errno == ECONNRESET){
 						//connection reset by client 
 						#ifdef NOTDEF
