@@ -40,3 +40,12 @@ Note that you will need to have the client maintain the connection for varying t
 echo the data back).
 
 - You are required to summarize all your data and findings in a properly formatted technical report. Make extensive use of tables and graphs to support your findings and conclusions.
+
+# Design
+## Client
+ - need to allow input of server IP, data length, run duration/quantity
+ - need to run multiple clients on one box
+ - [like to optimize performance by threading clients]
+* initial design will be to call clients from bash shell
+command line will always be consistent <program> IP len time(s)
+
