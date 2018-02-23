@@ -73,9 +73,9 @@ while
 	rcvtime=now()
 	count++
 	latest = sendtime-rcvtime
+	average += latest
 	if latest < min then min=latest
 	if latest > max then max=latest
-	average += latest
 end while
 capture end time 
 avg /= count

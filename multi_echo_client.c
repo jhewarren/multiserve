@@ -29,21 +29,24 @@
 ---------------------------------------------------------------------------------------*/
 #include <stdio.h>
 #include <netdb.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <netinet/in.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <strings.h>
-#include <arpa/inet.h>
 #include <unistd.h>
+#include <gmp.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/wait.h>
 #include "lib/socketwrapper.h"
 
 #define SERVER_TCP_PORT		7000		// Default port
-#define BUFLEN				1500  		// Buffer length
+#define PAYLOAD				800  		// Buffer length
 #define SERVER_IP			127.0.0.1	// Default server IP
-#define 
+
+long delay (struct timeval t1, struct timeval t2);
 
 int main (int argc, char **argv)
 {
@@ -51,9 +54,10 @@ int main (int argc, char **argv)
 	int sd, port, seq, payload, count = 0;
 	struct hostent	*hp;
 	struct sockaddr_in server;
-	char  *host, *bp, rbuf[BUFLEN], sbuf[BUFLEN], **pptr;
+	char  *host, *bp, rbuf[PAYLOAD], sbuf[PAYLOAD], **pptr;
 	char str[16];
-	struct time_val tstart, tend, tsend, treceive, tlatest, tmin, tmax, tavg;
+	struct time_val tstart, tend, tsend, treceive;
+    double tlatest, tmin, tmax, tavg;
 
 	switch(argc)
 	{
@@ -61,19 +65,19 @@ int main (int argc, char **argv)
 			host =	argv[1];			// Host name
 			port =	SERVER_TCP_PORT;	// default tcp port number
 			seq = 1;					// client ID
-			payload = BUFLEN;			// message payload in bytes
+			payload = PAYLOAD;			// message payload in bytes
 		break;
 		case 3:
 			host =	argv[1];			
 			port =	atoi(argv[2]);		// User specified port
 			seq = 1;					// client ID
-			payload = BUFLEN;			// message payload in bytes
+			payload = PAYLOAD;			// message payload in bytes
 		break;
 		case 4:
 			host =	argv[1];
 			port =	atoi(argv[2]);		// User specified port
 			sequence =	atoi(argv[3]);	// User specified port
-			payload = BUFLEN;			// message payload in bytes
+			payload = PAYLOAD;			// message payload in bytes
 		break;
 		case 5:
 			host =	argv[1];
@@ -109,26 +113,27 @@ int main (int argc, char **argv)
 	printf("Connected:    Server Name: %s\n", hp->h_name);
 	pptr = hp->h_addr_list;
 	printf("\t\tIP Address: %s\n", inet_ntop(hp->h_addrtype, *pptr, str, sizeof(str)));
-	printf("Transmit:\n");
 	
 	// get user's text
-	strncopy(sbuf, '@', BUFLEN);
+	strncopy(sbuf, '@', PAYLOAD);
 
 	gettimeofday(&tstart,NULL);
 
 	while (1){
+        
+        printf("Transmit:\n");
 		// Transmit data through the socket
 		gettimeofday(&tsend, NULL);
 
-		send (sd, sbuf, BUFLEN, 0);
+		send (sd, sbuf, PAYLOAD, 0);
 
 		printf("Receive:\n");
 		bp = rbuf;
-		bytes_to_read = BUFLEN;
+		bytes_to_read = PAYLOAD;
 
 		// client makes repeated calls to recv until no more data is expected to arrive.
 		n = 0;
-		while ((n = recv (sd, bp, bytes_to_read, 0)) < BUFLEN)
+		while ((n = recv (sd, bp, bytes_to_read, 0)) < PAYLOAD)
 		{
 			bp += n;
 			bytes_to_read -= n;
@@ -136,11 +141,31 @@ int main (int argc, char **argv)
 		printf ("%s\n", rbuf);
 		gettimeofday(&treceive, NULL);
 		tlatest = delay(tsend, &treceive);
-
+        if (count==0) 
+            tmin=tmax=tavg=tlatest;
+        else
+        {
+            tavg+=tlatest;
+            if (tlatest<tmin)
+                tmin=tlatest;
+            if (tlatest>tmax)
+                tmax=tlatest;
+        }
+        count ++;
 		fflush(stdout);
 	}
 	gettimeofday(&tend,NULL);
-	
+    tavg/=count;
 	close (sd);
 	return (0);
+}
+
+// Compute the delay between tl and t2 in milliseconds 
+long delay (struct timeval t1, struct timeval t2)
+{
+	long d;
+
+	d = (t2.tv_sec - t1.tv_sec) * 1000;
+	d += ((t2.tv_usec - t1.tv_usec + 500) / 1000);
+	return(d);
 }
