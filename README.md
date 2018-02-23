@@ -1,5 +1,6 @@
-# 8005 Assignment #2
+# 8005 Assignment 2
 
+## Outline
 Due: February 26, 1200 hrs. You may work in groups of two.
 
 Objective: To compare the scalability and performance of the select-, multi-threaded-, and epoll- based client-server implementations.
@@ -12,19 +13,19 @@ Design and implement three separate servers:
 2. A select (level-triggered) multiplexed server
 3. An epoll (edge-triggered) asynchronous server
 
-all servers must 
+all servers must
 - handle multiple connections
 - transfer specified data to connecgted client
 
 echo client
 - send variable length strings
-- send configurable quantity
+- send configurable quantity of messages
 - maintain connection
-- varying duration
+- **resultant** varying duration
 
 Logging
 - track when performance degrades
-- track number of connections 
+- track number of connections
 - track turnaround time (performance) as load increases
 - load vs performance
 - maintain stats on both server and client
@@ -47,5 +48,35 @@ echo the data back).
  - need to run multiple clients on one box
  - [like to optimize performance by threading clients]
 * initial design will be to call clients from bash shell
-command line will always be consistent <program> IP len time(s)
+command line will always be consistent {program} IP client-number payload-length clients msg-quantity [delay]
+need to track with wireshark
+### script ;
+    for i = 1 to nclients;
+        cpid[i]=launch client in bg
+        list cpid [i]
+    wait for input/error
+    for i=1 to nclients
+        killpid[i]
 
+### client
+// receives: server-ip server-port sequence payload-size
+// saves: IP(of server), client-number, requests sent, data sent, lowest RTT, highest RTT, avgRTT
+capture start time
+end time = start time + duration
+open sockets; in/out
+build message info
+while
+	sendtime=now()
+	send packet()
+	listen
+	receive packet()
+	rcvtime=now()
+	count++
+	latest = sendtime-rcvtime
+	if latest < min then min=latest
+	if latest > max then max=latest
+	average += latest
+end while
+capture end time 
+avg /= count
+log client-number, end time - start time, (= total running time), requests-sent, payload*count (=data-sent), min, max, avg
