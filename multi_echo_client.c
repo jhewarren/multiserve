@@ -32,7 +32,7 @@
 #include <netinet/in.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 #include <unistd.h>
 #include <gmp.h>
 #include <arpa/inet.h>
@@ -40,13 +40,13 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/wait.h>
-#include "lib/socketwrapper.h"
+#include "lib/socketwrapper.cpp"
 
 #define SERVER_TCP_PORT		7000		// Default port
 #define PAYLOAD				800  		// Buffer length
 #define SERVER_IP			127.0.0.1	// Default server IP
 
-long delay (struct timeval t1, struct timeval t2);
+// long delay (struct timeval t1, struct timeval t2);
 
 int main (int argc, char **argv)
 {
@@ -54,10 +54,11 @@ int main (int argc, char **argv)
 	int sd, port, seq, payload, count = 0;
 	struct hostent	*hp;
 	struct sockaddr_in server;
-	char  *host, *bp, rbuf[PAYLOAD], sbuf[PAYLOAD], **pptr;
+	char  *host, *bp, rbuf[PAYLOAD], sbuf[PAYLOAD]="This is a test of the emergency broadcast system. If this were a real emergency then you would know it.", **pptr;
 	char str[16];
-	struct time_val tstart, tend, tsend, treceive;
-    double tlatest, tmin, tmax, tavg;
+//	struct time_val tstart, tend, tsend, treceive;
+//    double tlatest, tmin, tmax, tavg, tnet;
+//    sbuf;
 
 	switch(argc)
 	{
@@ -76,17 +77,17 @@ int main (int argc, char **argv)
 		case 4:
 			host =	argv[1];
 			port =	atoi(argv[2]);		// User specified port
-			sequence =	atoi(argv[3]);	// User specified port
+			seq =	atoi(argv[3]);	// User specified port
 			payload = PAYLOAD;			// message payload in bytes
 		break;
 		case 5:
 			host =	argv[1];
 			port =	atoi(argv[2]);	// User specified port
-			sequence =	atoi(argv[3]);	// User specified port
+			seq =	atoi(argv[3]);	// User specified port
 			payload =	atoi(argv[4]);	// User specified port
 		break;
 		default:
-			fprintf(stderr, "Usage: %s host [port sequence payload ]\n", argv[0]);
+			fprintf(stderr, "Usage: %s host [port seq payload ]\n", argv[0]);
 			exit(1);
 	}
 
@@ -94,7 +95,7 @@ int main (int argc, char **argv)
 	if ((sd = Socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		exit(1);
 
-	ConfigServerSocket(&server,port);
+	ConfigServerSocket(server,port);
 	
 	if ((hp = gethostbyname(host)) == NULL)
 	{
@@ -114,16 +115,15 @@ int main (int argc, char **argv)
 	pptr = hp->h_addr_list;
 	printf("\t\tIP Address: %s\n", inet_ntop(hp->h_addrtype, *pptr, str, sizeof(str)));
 	
-	// get user's text
-	strncopy(sbuf, '@', PAYLOAD);
+//	&strncpy(sbuf, '0', PAYLOAD);
 
-	gettimeofday(&tstart,NULL);
+//	clock_gettime(&tstart,NULL);
 
 	while (1){
         
         printf("Transmit:\n");
 		// Transmit data through the socket
-		gettimeofday(&tsend, NULL);
+//		clock_gettime(&tsend, NULL);
 
 		send (sd, sbuf, PAYLOAD, 0);
 
@@ -139,24 +139,27 @@ int main (int argc, char **argv)
 			bytes_to_read -= n;
 		}
 		printf ("%s\n", rbuf);
-		gettimeofday(&treceive, NULL);
-		tlatest = delay(tsend, &treceive);
-        if (count==0) 
-            tmin=tmax=tavg=tlatest;
-        else
-        {
-            tavg+=tlatest;
-            if (tlatest<tmin)
-                tmin=tlatest;
-            if (tlatest>tmax)
-                tmax=tlatest;
-        }
+//		clock_gettime(&treceive, NULL);
+//		tlatest = delay(&tsend, &treceive);
+ //       if (count==0) 
+ //           tmin=tmax=tavg=tlatest;
+  //      else
+//        {
+//            tavg+=tlatest;
+//            if (tlatest<tmin)
+//                tmin=tlatest;
+//            if (tlatest>tmax)
+//                tmax=tlatest;
+//        }
         count ++;
 		fflush(stdout);
 	}
-	gettimeofday(&tend,NULL);
-    tavg/=count;
+//	clock_gettime(&tend,NULL);
+//	tnet = delay(&tstart, &tend);
+//    tavg/=count;
 	close (sd);
+    printf("%d %d", payload, seq);
+//    printf("%d: %d usec total - %d messages %d total bytes - %d|%d|%d (min|max|avg)",seq, tnet, count, PAYLOAD*count,tmin, tmax, tavg);
 	return (0);
 }
 
