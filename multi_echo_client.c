@@ -40,10 +40,10 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/wait.h>
-#include "lib/socketwrapper.cpp"
+//#include "lib/socketwrapper.cpp"
 
 #define SERVER_TCP_PORT		7000		// Default port
-#define PAYLOAD				800  		// Buffer length
+#define PAYLOAD				80  		// Buffer length
 #define SERVER_IP			127.0.0.1	// Default server IP
 
 // long delay (struct timeval t1, struct timeval t2);
@@ -54,7 +54,7 @@ int main (int argc, char **argv)
 	int sd, port, seq, payload, count = 0;
 	struct hostent	*hp;
 	struct sockaddr_in server;
-	char  *host, *bp, rbuf[PAYLOAD], sbuf[PAYLOAD]="This is a test of the emergency broadcast system. If this were a real emergency then you would know it.", **pptr;
+	char  *host, *bp, rbuf[PAYLOAD], sbuf[PAYLOAD], myBuf[]="This is a test of the emergency broadcast system.", **pptr;
 	char str[16];
 //	struct time_val tstart, tend, tsend, treceive;
 //    double tlatest, tmin, tmax, tavg, tnet;
@@ -92,10 +92,14 @@ int main (int argc, char **argv)
 	}
 
 	// Create the socket
-	if ((sd = Socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		exit(1);
 
-	ConfigServerSocket(server,port);
+	bzero((char *)&server, sizeof(struct sockaddr_in));
+	server.sin_family = AF_INET;
+	server.sin_port = htons(port);
+	if ((hp = gethostbyname(host)) == NULL)
+    //	ConfigServerSocket(server,port);
 	
 	if ((hp = gethostbyname(host)) == NULL)
 	{
@@ -115,17 +119,19 @@ int main (int argc, char **argv)
 	pptr = hp->h_addr_list;
 	printf("\t\tIP Address: %s\n", inet_ntop(hp->h_addrtype, *pptr, str, sizeof(str)));
 	
-//	&strncpy(sbuf, '0', PAYLOAD);
 
 //	clock_gettime(&tstart,NULL);
 
 	while (1){
+        strncpy(sbuf, myBuf, PAYLOAD);
+        sbuf[count]='0';
         
+		printf ("%s\n", sbuf);
         printf("Transmit:\n");
 		// Transmit data through the socket
 //		clock_gettime(&tsend, NULL);
 
-		send (sd, sbuf, PAYLOAD, 0);
+		send (sd, sbuf, sizeof(sbuf), 0);
 
 		printf("Receive:\n");
 		bp = rbuf;
@@ -133,7 +139,8 @@ int main (int argc, char **argv)
 
 		// client makes repeated calls to recv until no more data is expected to arrive.
 		n = 0;
-		while ((n = recv (sd, bp, bytes_to_read, 0)) < PAYLOAD)
+//		while ((n = recv (sd, bp, bytes_to_read, 0)) < PAYLOAD)
+		while ((n = recv (sd, bp, bytes_to_read, 0)) >0)
 		{
 			bp += n;
 			bytes_to_read -= n;
@@ -152,8 +159,8 @@ int main (int argc, char **argv)
 //                tmax=tlatest;
 //        }
         count ++;
-		fflush(stdout);
 	}
+	fflush(stdout);
 //	clock_gettime(&tend,NULL);
 //	tnet = delay(&tstart, &tend);
 //    tavg/=count;
