@@ -2,11 +2,10 @@
 #include <poll.h>
 
 #define SERV_PORT 8000
-#define BUFLEN 2048 //should be the same on client size
 #define OPEN_MAX 255
 #define LISTENQ 5
 #define TIMEOUT -1
-//#define NOTDEF 1 //debug
+#define NOTDEF 1 //debug
 int main(int argc, char **argv)
 {
 	int i, maxi, listenfd, connfd, sockfd;
@@ -42,7 +41,7 @@ int main(int argc, char **argv)
 			clilen = sizeof(cliaddr);
 			connfd = Accept(listenfd, (struct sockaddr *)&cliaddr, &clilen);
 			#ifdef NOTDEF
-			printf("new client: %s\n", Sock_ntop((SA *)&cliaddr, clilen));
+			printf("new client: %s\n", inet_ntoa(cliaddr.sin_addr));
 			#endif
 
 			for(i = 1; i < OPEN_MAX; i++){

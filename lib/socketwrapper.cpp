@@ -213,8 +213,7 @@ void ConfigServerSocket(struct sockaddr_in *servaddr, int port) {
 void ConfigClientSocket(struct sockaddr_in *servaddr, const char* ip, int port) {
 	struct hostent* hp;
 	if((hp = gethostbyname(ip)) == NULL) {
-		std::string str(ip); //might have an error here
-		perror("Unknown server address %s\n"+ str);
+		perror("Unknown server address\n");
 	}
 	bzero((char*)servaddr, sizeof(struct sockaddr_in));
 	servaddr->sin_family = AF_INET;

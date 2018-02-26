@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#define BUFLEN		1024
+#define BUFLEN 2048 //should be the same on client size
 
 int Socket(int family, int type, int protocol);
 void SetReuse (int socket);
