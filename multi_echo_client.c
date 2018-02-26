@@ -2,7 +2,7 @@
 --	SOURCE FILE:		multi_echo_client.c - A simple TCP client program.
 --
 --	PROGRAM:		multi_echo_client
---				gcc -Wall -ggdb -o mec multi_echo_client.c  
+--				gcc -Wall -ggdb -o mec multi_echo_client.c
 --
 --	FUNCTIONS:		Berkeley Socket API
 --
@@ -11,7 +11,7 @@
 --	REVISIONS:		(Date and Description)
 --				January 2005
 --				Modified the read loop to use fgets.
---				While loop is based on the buffer length 
+--				While loop is based on the buffer length
 --
 --
 --	DESIGNERS:		Aman Abdulla, John Warren
@@ -21,8 +21,8 @@
 --	NOTES:
 --	The program will establish a TCP connection to a user specifed server.
 -- 	The server can be specified using a fully qualified domain name or and
---	IP address. 
---  After the connection has been established a defined buffer is sent to 
+--	IP address.
+--  After the connection has been established a defined buffer is sent to
 --  the server and the response (echo) back from the server is displayed.
 --	This client application can be used to test the accompanying epoll
 --	server: epoll_svr.c
@@ -40,11 +40,11 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/wait.h>
-//#include "lib/socketwrapper.cpp"
+#include "lib/socketwrapper.cpp"
 
 #define SERVER_TCP_PORT		7000		// Default port
 #define PAYLOAD				80  		// Buffer length
-#define SERVER_IP			127.0.0.1	// Default server IP
+#define SERVER_IP			"127.0.0.1"	// Default server IP
 
 // long delay (struct timeval t1, struct timeval t2);
 
@@ -62,6 +62,12 @@ int main (int argc, char **argv)
 
 	switch(argc)
 	{
+		case 1:
+			host =	SERVER_IP;			// Host name
+			port =	SERVER_TCP_PORT;	// default tcp port number
+			seq = 1;					// client ID
+			payload = PAYLOAD;			// message payload in bytes
+		break;
 		case 2:
 			host =	argv[1];			// Host name
 			port =	SERVER_TCP_PORT;	// default tcp port number
@@ -69,7 +75,7 @@ int main (int argc, char **argv)
 			payload = PAYLOAD;			// message payload in bytes
 		break;
 		case 3:
-			host =	argv[1];			
+			host =	argv[1];
 			port =	atoi(argv[2]);		// User specified port
 			seq = 1;					// client ID
 			payload = PAYLOAD;			// message payload in bytes
@@ -91,6 +97,7 @@ int main (int argc, char **argv)
 			exit(1);
 	}
 
+	while (1){
 	// Create the socket
 	if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		exit(1);
@@ -98,9 +105,9 @@ int main (int argc, char **argv)
 	bzero((char *)&server, sizeof(struct sockaddr_in));
 	server.sin_family = AF_INET;
 	server.sin_port = htons(port);
-	if ((hp = gethostbyname(host)) == NULL)
-    //	ConfigServerSocket(server,port);
-	
+//	if ((hp = gethostbyname(host)) == NULL)
+//    	ConfigServerSocket(&server,port);
+
 	if ((hp = gethostbyname(host)) == NULL)
 	{
 		fprintf(stderr, "Unknown server address\n");
@@ -118,20 +125,20 @@ int main (int argc, char **argv)
 	printf("Connected:    Server Name: %s\n", hp->h_name);
 	pptr = hp->h_addr_list;
 	printf("\t\tIP Address: %s\n", inet_ntop(hp->h_addrtype, *pptr, str, sizeof(str)));
-	
+
 
 //	clock_gettime(&tstart,NULL);
 
-	while (1){
-        strncpy(sbuf, myBuf, PAYLOAD);
+        bcopy(myBuf, sbuf, PAYLOAD);
         sbuf[count]='0';
-        
+
 		printf ("%s\n", sbuf);
         printf("Transmit:\n");
 		// Transmit data through the socket
 //		clock_gettime(&tsend, NULL);
 
 		send (sd, sbuf, sizeof(sbuf), 0);
+//		SendMsg (sd, sbuf);
 
 		printf("Receive:\n");
 		bp = rbuf;
@@ -141,14 +148,15 @@ int main (int argc, char **argv)
 		n = 0;
 //		while ((n = recv (sd, bp, bytes_to_read, 0)) < PAYLOAD)
 		while ((n = recv (sd, bp, bytes_to_read, 0)) >0)
-		{
-			bp += n;
-			bytes_to_read -= n;
-		}
+//		RecvMsg (sd, bp);
+//		{
+//			bp += n;
+//			bytes_to_read -= n;
+//		}
 		printf ("%s\n", rbuf);
 //		clock_gettime(&treceive, NULL);
 //		tlatest = delay(&tsend, &treceive);
- //       if (count==0) 
+ //       if (count==0)
  //           tmin=tmax=tavg=tlatest;
   //      else
 //        {
@@ -165,12 +173,12 @@ int main (int argc, char **argv)
 //	tnet = delay(&tstart, &tend);
 //    tavg/=count;
 	close (sd);
-    printf("%d %d", payload, seq);
+    printf("%d %d %d", payload, seq, count);
 //    printf("%d: %d usec total - %d messages %d total bytes - %d|%d|%d (min|max|avg)",seq, tnet, count, PAYLOAD*count,tmin, tmax, tavg);
 	return (0);
 }
 
-// Compute the delay between tl and t2 in milliseconds 
+// Compute the delay between tl and t2 in milliseconds
 long delay (struct timeval t1, struct timeval t2)
 {
 	long d;

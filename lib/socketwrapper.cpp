@@ -36,13 +36,13 @@
 --
 -- PROGRAMMER: Aing Ragunathan
 --
--- INTERFACE:  int Socket(int family, int type, int protocol) 
+-- INTERFACE:  int Socket(int family, int type, int protocol)
 --
 -- PARAMETER:  	int family 		- communication domain
 --				int type		- communication semantics
 --				int protocol	- type of protocol to be used with the socket
 --
--- RETURNS:    a integer referring to the socket identifer  
+-- RETURNS:    a integer referring to the socket identifer
 --
 -- NOTES:      Socket wrapper for creating and validating the creation of a socket
 ----------------------------------------------------------------------------------------------- */
@@ -76,7 +76,7 @@ void SetReuse(int socket) {
 	int yes;
 	if(setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
 		perror("setsockopt");
-	}	
+	}
 }
 
 /*-----------------------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ int Bind(int socket, struct sockaddr_in *addr) {
 --
 -- PROGRAMMER: Aing Ragunathan
 --
--- INTERFACE:  int Listen(int socket, int size) 
+-- INTERFACE:  int Listen(int socket, int size)
 --
 -- PARAMETER:  	int socket 	- socket descriptor
 --				int size	- max number the queue of pending connections can grow to
@@ -129,9 +129,9 @@ int Listen(int socket, int size) {
 	int n;
 	if((n = listen(socket, size)) < 0){
 		perror("listening error\n");
-		close(socket);	
+		close(socket);
 		return -1;
-	} 
+	}
 	return 0;
 }
 
@@ -161,7 +161,7 @@ int Accept(int socket, struct sockaddr *addr, socklen_t *addrlen) {
 		perror("accept error\n");
 		close(socket);
 		return -1;
-	}	
+	}
 	printf("Accepted connection\n");
 	return n;
 }
@@ -175,7 +175,7 @@ int Accept(int socket, struct sockaddr *addr, socklen_t *addrlen) {
 --
 -- PROGRAMMER: Aing Ragunathan
 --
--- INTERFACE:  void ConfigServerSocket(struct sockaddr_in *servaddr, int port) 
+-- INTERFACE:  void ConfigServerSocket(struct sockaddr_in *servaddr, int port)
 --
 -- PARAMETER:  	struct sockaddr_in *servaddr 	- address structure to configure
 --				int port						- port to configure the address structure to
@@ -200,7 +200,7 @@ void ConfigServerSocket(struct sockaddr_in *servaddr, int port) {
 --
 -- PROGRAMMER: Aing Ragunathan
 --
--- INTERFACE:  void ConfigClientSocket(struct sockaddr_in *servaddr, const char* ip, int port) 
+-- INTERFACE:  void ConfigClientSocket(struct sockaddr_in *servaddr, const char* ip, int port)
 --
 -- PARAMETER:  	struct sockaddr_in *servaddr 	- address structure to configure
 --				const char* ip					- ip address to configure the address structure to
@@ -241,7 +241,7 @@ void ConfigClientSocket(struct sockaddr_in *servaddr, const char* ip, int port) 
 ----------------------------------------------------------------------------------------------- */
 void Connect(int sockfd, struct sockaddr_in sockaddr) {
 	if(connect(sockfd, (struct sockaddr *)&sockaddr, sizeof(sockaddr)) == -1)
-		perror("Client: Can't connec to server\n");
+		perror("Client: Can't connect to server\n");
 	printf("Client: Connected!\n");
 }
 
@@ -278,7 +278,7 @@ void SendMsg(int sockfd, char* buffer) {
 --
 -- PROGRAMMER: Aing Ragunathan
 --
--- INTERFACE:  int RecvMsg(int sockfd, char* buffer) 
+-- INTERFACE:  int RecvMsg(int sockfd, char* buffer)
 --
 -- PARAMETER:  	int sockfd 		- file descriptor to connect with
 --				char* buffer 	- char array to send through the socket
