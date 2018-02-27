@@ -59,24 +59,27 @@ need to track with wireshark
         killpid[i]
 
 ### client
-// receives: server-ip server-port sequence payload-size
-// saves: IP(of server), client-number, requests sent, data sent, lowest RTT, highest RTT, avgRTT
-capture start time
-end time = start time + duration
-open sockets; in/out
-build message info
-while
+// INPUT: server-ip server-port sequence payload-size duration startup delay
+// OUTPUT: client IP, client instance number, requests sent, total data sent, lowest RTT, highest RTT, avgRTT
+Initialize: 
+    build messages
+    build and configure socket, open connection, 
+    capture start time, determine end time = start time + duration
+while < end-time
 	sendtime=now()
 	send packet()
 	listen
 	receive packet()
 	rcvtime=now()
+    update times;
+        latest = sendtime-rcvtime
+        average += latest
+        if latest < min then min=latest
+        if latest > max then max=latest
 	count++
-	latest = sendtime-rcvtime
-	average += latest
-	if latest < min then min=latest
-	if latest > max then max=latest
 end while
-capture end time 
-avg /= count
-log client-number, end time - start time, (= total running time), requests-sent, payload*count (=data-sent), min, max, avg
+Closure:
+    capture end time 
+    avg /= count
+    log (client-number, end time - start time, (= total running time), requests-sent, payload*count (=data-sent), min, max, avg)
+    close connections
