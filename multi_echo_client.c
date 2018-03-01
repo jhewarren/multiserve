@@ -40,7 +40,7 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/wait.h>
-#include "lib/socketwrapper.cpp"
+#include "lib/socketwrapper.h"
 
 #define SERVER_TCP_PORT		7000		// Default port
 #define PAYLOAD				80  		// Buffer length

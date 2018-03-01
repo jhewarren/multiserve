@@ -12,34 +12,34 @@
 #include <signal.h>
 #include "lib/socketwrapper.h"
 
-#define SERVERPORT 8000
+#define SERVERPORT "8000"
 #define MAXEVENTS 1000
 
 
 //gcc -Wall -fopenmp -ggdb -o epoll_server epoll.c lib/socketwrapper.c
-
-void close_fd (int signo)
+/*
+void close_fd (int signo, int fd_server)
 {
         close(fd_server);
 	exit (EXIT_SUCCESS);
 }
-
+*/
 int main(int argc, char ** argv) {
     int sfd, s;
     int efd;
     struct epoll_event event;
     struct epoll_event *events;
-	struct sigaction act;
+//	struct sigaction act;
     epoll_data * data;
-
-	act.sa_handler = close_fd;
+/*
+	act.sa_handler = close_fd();
 	act.sa_flags = 0;
 	if ((sigemptyset (&act.sa_mask) == -1 || sigaction (SIGINT, &act, NULL) == -1))
 	{
 			perror ("Failed to set SIGINT handler");
 			exit (EXIT_FAILURE);
 	}
-
+*/
     //make and bind the socket
     sfd = make_bound(SERVERPORT);
     if (sfd == -1) {
@@ -112,7 +112,7 @@ int main(int argc, char ** argv) {
                         }
 
                         // Make the server listening socket non-blocking
-                        if (fcntl (infd, F_SETFL, O_NONBLOCK | fcntl (infd, F_GETFL, 0)) == -1) 
+                        if (fcntl (infd, F_SETFL, O_NONBLOCK | fcntl (infd, F_GETFL, 0)) == -1)
                             perror("fcntl");
 
                         data = calloc(1, sizeof(epoll_data));
