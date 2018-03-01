@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 	}
 
 	maxi = 0; // max index into client[] array 
-	for(;;)
+	while(1)
 	{
 		nready = poll(client, maxi + 1, TIMEOUT);
 

@@ -15,8 +15,14 @@
 #define SERVERPORT 8000
 #define MAXEVENTS 1000
 
-void close_fd (int);
+
 //gcc -Wall -fopenmp -ggdb -o epoll_server epoll.c lib/socketwrapper.c
+
+void close_fd (int signo)
+{
+        close(fd_server);
+	exit (EXIT_SUCCESS);
+}
 
 int main(int argc, char ** argv) {
     int sfd, s;
