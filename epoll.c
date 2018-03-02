@@ -17,29 +17,30 @@
 
 
 //gcc -Wall -fopenmp -ggdb -o epoll_server epoll.c lib/socketwrapper.c
-/*
-void close_fd (int signo, int fd_server)
+
+void exit_signal(int signo)
 {
-        close(fd_server);
-	exit (EXIT_SUCCESS);
+    printf("CTRL+C exit");
+    return 1;
 }
-*/
+
 int main(int argc, char ** argv) {
     int sfd, s;
     int efd;
     struct epoll_event event;
     struct epoll_event *events;
-//	struct sigaction act;
     epoll_data * data;
-/*
-	act.sa_handler = close_fd();
+    struct sigaction act;
+
+    memset(&act,0,sizeof(act));
+	act.sa_handler = &exit_signal;
 	act.sa_flags = 0;
 	if ((sigemptyset (&act.sa_mask) == -1 || sigaction (SIGINT, &act, NULL) == -1))
 	{
 			perror ("Failed to set SIGINT handler");
 			exit (EXIT_FAILURE);
 	}
-*/
+
     //make and bind the socket
     sfd = make_bound(SERVERPORT);
     if (sfd == -1) {
