@@ -133,8 +133,6 @@ int main(int argc, char ** argv) {
                 }
             } else {
                 //EPOLLOUT
-                //shoulnt happen but this means we would have blocked
-                //we are now notified that we can send the rest of the data
                 echo_harder((epoll_data *)event.data.ptr);
             }
         }

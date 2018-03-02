@@ -28,7 +28,7 @@ int Accept(int socket, struct sockaddr *addr, socklen_t *addrlen);
 void ConfigServerSocket(struct sockaddr_in *servaddr, int port);
 void ConfigClientSocket(struct sockaddr_in *servaddr, const char* ip, int port);
 void Connect(int sockfd, struct sockaddr_in sockaddr);
-void SendMsg(int sockfd, char* buffer);
+int SendMsg(int sockfd, char* buffer);
 int RecvMsg(int sockfd, char* buffer);
 int make_bound(const char *port);
 int make_non_blocking(int sfd);

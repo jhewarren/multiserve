@@ -2,10 +2,10 @@
 #include <poll.h>
 
 #define SERV_PORT 8000
-#define OPEN_MAX 255
+#define OPEN_MAX 5000
 #define LISTENQ 5
 #define TIMEOUT -1
-#define NOTDEF 1 //debug
+//#define NOTDEF 1 //debug
 int main(int argc, char **argv)
 {
 	int i, maxi, listenfd, connfd, sockfd;
