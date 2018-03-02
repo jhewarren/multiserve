@@ -24,6 +24,7 @@ void *connection_handler(void *socket_desc)
     int sock = *(int*)socket_desc;
     int read_size,e;
     char *message;
+    int e;
     //Receive a message from client
     while(1)
     {
