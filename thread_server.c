@@ -5,23 +5,58 @@
 #include<arpa/inet.h>
 #include<unistd.h>
 #include<pthread.h>
+#include <signal.h>
 #include "lib/socketwrapper.h"
 
 #define SERVERPORT 8000
 #define LIMIT 10000
 //gcc thread_server.c lib/socketwrapper.c -lpthread -o thread_server
 
-void *connection_handler(void *);
+void exit_signal(int signo)
+{
+    printf("CTRL+C exit");
+    return 1;
+}
+
+void *connection_handler(void *socket_desc)
+{
+    //Get the socket descriptor
+    int sock = *(int*)socket_desc;
+    int read_size,e;
+    char *message;
+    //Receive a message from client
+    while(1)
+    {
+		if((read_size = RecvMsg(sock , message)) == -1)
+			break;
+		//Send the message back to client
+        if((e = SendMsg(sock , message)) == -1)
+			break;
+		
+		//clear the message buffer
+		memset(message, 0, BUFLEN);
+    }         
+    return 0;
+} 
 
 int main(int argc , char *argv[])
 {
     int socket_desc , client_sock , c;
     struct sockaddr_in server , client;
-     
+    
+    struct sigaction act;
+    memset(&act,0,sizeof(act));
+	act.sa_handler = &exit_signal;
+	act.sa_flags = 0;
+	if ((sigemptyset (&act.sa_mask) == -1 || sigaction (SIGINT, &act, NULL) == -1))
+	{
+			perror ("Failed to set SIGINT handler");
+			exit (EXIT_FAILURE);
+	}
 
     socket_desc = Socket(AF_INET , SOCK_STREAM , 0);
     
-	ConfigServerSocket((struct sockaddr *)&server,8000);
+	ConfigServerSocket((struct sockaddr *)&server,SERVERPORT);
 
     Bind(SERVERPORT, (struct sockaddr *)&server);
 
@@ -48,28 +83,3 @@ int main(int argc , char *argv[])
      
     return 0;
 }
- 
-/*
- * This will handle connection for each client
- * */
-void *connection_handler(void *socket_desc)
-{
-    //Get the socket descriptor
-    int sock = *(int*)socket_desc;
-    int read_size,e;
-    char *message;
-     
-    //Receive a message from client
-    while(1)
-    {
-		if((read_size = RecvMsg(sock , message)) == -1)
-			break;
-		//Send the message back to client
-        if((e = SendMsg(sock , message)) == -1)
-			break;
-		
-		//clear the message buffer
-		memset(message, 0, BUFLEN);
-    }         
-    return 0;
-} 
