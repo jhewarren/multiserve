@@ -59,10 +59,8 @@ void SetReuse(int socket) {
 
 /*-----------------------------------------------------------------------------------------------
 -- FUNCTION:   Bind
---
 -- DATE:       Oct 2, 2017
 -- PROGRAMMER: Aing Ragunathan
---
 -- PARAMETER:  	int socket 					- socket descriptor
 --				struct sockaddr_in *addr 	- address structure to bind the socket to
 -- RETURNS:    returns 0 on success and -1 on failure
@@ -82,7 +80,6 @@ int Bind(int socket, struct sockaddr_in *addr) {
 -- FUNCTION:   Listen
 -- DATE:       Oct 2, 2017
 -- PROGRAMMER: Aing Ragunathan
---
 -- INTERFACE:  int Listen(int socket, int size)
 -- PARAMETER:  	int socket 	- socket descriptor
 --				int size	- max number the queue of pending connections can grow to
@@ -103,7 +100,6 @@ int Listen(int socket, int size) {
 -- FUNCTION:   Accept
 -- DATE:       Oct 2, 2017
 -- PROGRAMMER: Aing Ragunathan
---
 -- INTERFACE:  int Accept(int socket, struct sockaddr *addr, socklen_t *addrlen)
 -- PARAMETER:  	int socket 				- socket descriptor
 --				struct sockaddr *addr	- address structure to accept a connection from
@@ -127,7 +123,6 @@ int Accept(int socket, struct sockaddr *addr, socklen_t *addrlen) {
 -- FUNCTION:   ConfigServerSocket
 -- DATE:       Oct 2, 2017
 -- PROGRAMMER: Aing Ragunathan
---
 -- INTERFACE:  void ConfigServerSocket(struct sockaddr_in *servaddr, int port)
 -- PARAMETER:  	struct sockaddr_in *servaddr 	- address structure to configure
 --				int port						- port to configure the address structure to
@@ -188,12 +183,12 @@ void Connect(int sockfd, struct sockaddr_in sockaddr) {
 -- PARAMETER:  	int sockfd 		- file descriptor to connect with
 --				char* buffer 	- char array to send through the socket
 -- RETURNS:    return true if successful
---
 -- NOTES:      wrapper function for sending a char array with validation
 ----------------------------------------------------------------------------------------------- */
-void SendMsg(int sockfd, char* buffer) {
-	if(send(sockfd, buffer, BUFLEN, 0) == -1) {
+int SendMsg(int sockfd, char* buffer) {
+	if(write(sockfd, buffer, BUFLEN) == -1) {
 		perror("SendMsg Failed\n");
+        return -1;
 	}
 }
 
@@ -253,7 +248,7 @@ int make_bound(const char * port) {
         close(sfd);
     }
     if (!rp) {
-        fprintf(stderr, "Unable to bind\n");
+        perror("Unable to bind");
         return -1;
     }
     freeaddrinfo(result);
