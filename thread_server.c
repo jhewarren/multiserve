@@ -56,9 +56,9 @@ int main(int argc , char *argv[])
 
     socket_desc = Socket(AF_INET , SOCK_STREAM , 0);
     
-	ConfigServerSocket((struct sockaddr *)&server,SERVERPORT);
+	ConfigServerSocket((struct sockaddr_in *)&server,SERVERPORT);
 
-    Bind(SERVERPORT, (struct sockaddr *)&server);
+    Bind(SERVERPORT, (struct sockaddr_in *)&server);
 
     Listen(socket_desc , LIMIT);
 
@@ -66,7 +66,7 @@ int main(int argc , char *argv[])
     c = sizeof(struct sockaddr_in);
 	pthread_t thread_id;
 	
-    while( (client_sock = Accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) )
+    while( (client_sock = Accept(socket_desc, (struct sockaddr_in *)&client, (socklen_t*)&c)) )
     {
         if( pthread_create( &thread_id , NULL ,  connection_handler , (void*) &client_sock) == 0)
         {
