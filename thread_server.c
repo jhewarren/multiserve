@@ -13,11 +13,11 @@
 //gcc thread_server.c lib/socketwrapper.c -lpthread -o thread_server
 void *connection_handler(void *socket_desc)
 {
+
     //Get the socket descriptor
     int sock = *(int*)socket_desc;
     int read_size,e;
     char *message;
-    //int e;
     //Receive a message from client
     while(1)
     {
