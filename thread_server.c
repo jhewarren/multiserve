@@ -36,7 +36,7 @@ void *connection_handler(void *socket_desc)
 int main(int argc , char *argv[])
 {
     int socket_desc , *client_sock;
-    struct sockaddr_in server , client;
+    struct sockaddr_in server , *client;
 
     socket_desc = Socket(AF_INET , SOCK_STREAM , 0);
 
@@ -50,7 +50,7 @@ int main(int argc , char *argv[])
     client_sock = calloc(1,sizeof(struct sockaddr_in));
 	pthread_t thread_id;
 
-    while( (client_sock = Accept(socket_desc, (struct sockaddr *)client, (socklen_t*)client_sock)) )
+    while( (client_sock = Accept(socket_desc, (struct sockaddr_in *)client, (socklen_t*)client_sock)) )
     {
         if( pthread_create( &thread_id , NULL ,  connection_handler , (void*) client_sock) != 0)
         {
