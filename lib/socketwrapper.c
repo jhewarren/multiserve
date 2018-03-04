@@ -186,10 +186,11 @@ void Connect(int sockfd, struct sockaddr_in sockaddr) {
 -- NOTES:      wrapper function for sending a char array with validation
 ----------------------------------------------------------------------------------------------- */
 int SendMsg(int sockfd, char* buffer) {
-	if(write(sockfd, buffer, BUFLEN) == -1) {
+	if(send(sockfd, buffer, BUFLEN, 0) == -1) {
 		perror("SendMsg Failed\n");
         return -1;
 	}
+    return 1;
 }
 
 /*-----------------------------------------------------------------------------------------------
@@ -292,6 +293,7 @@ int echo_harder(epoll_data * epd) {
         }
         printf("wrote: %d\n", ret);
     }
+    return 1;
 }
 
 int epoll_data_init(epoll_data * epd, int fd) {
