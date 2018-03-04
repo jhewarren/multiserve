@@ -42,9 +42,9 @@ int main(int argc, char *argv[])
     printf("Waiting connections");
     c = sizeof(struct sockaddr_in);
 
-    while (client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t *)&c))
+    while (client_sock = Accept(socket_desc, (struct sockaddr *)&client, (socklen_t *)&c))
     {
-        printf("Connection accepted %d", client_sock);
+        printf("Connection accepted %d ", client_sock);
 
         new_sock = malloc(1);
         *new_sock = client_sock;

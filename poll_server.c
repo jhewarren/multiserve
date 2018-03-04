@@ -1,4 +1,5 @@
 #include "lib/socketwrapper.h"
+#include <sys/resource.h>
 #include <poll.h>
 
 #define SERV_PORT 8000
@@ -17,10 +18,10 @@ int main(int argc, char **argv)
 	struct pollfd client[OPEN_MAX];
 	struct sockaddr_in cliaddr, servaddr;
 
-	//struct rlimit lim;
-    //lim.rlim_cur = (1UL << 20);
-    //lim.rlim_max = (1UL << 20);
-    //setrlimit(RLIMIT_NOFILE, &lim);
+	struct rlimit lim;
+    lim.rlim_cur = (1UL << 20);
+    lim.rlim_max = (1UL << 20);
+    setrlimit(RLIMIT_NOFILE, &lim);
 
 	listenfd = Socket(AF_INET, SOCK_STREAM, 0);
 	ConfigServerSocket(&servaddr,SERV_PORT);

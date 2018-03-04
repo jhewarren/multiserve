@@ -10,6 +10,7 @@
 #include <netdb.h>
 #include <omp.h>
 #include <signal.h>
+#include <sys/resource.h>
 #include "lib/socketwrapper.h"
 
 #define SERVERPORT "54321"
@@ -25,10 +26,10 @@ int main(int argc, char ** argv) {
     struct epoll_event *events;
     epoll_data * data;
 
-    //struct rlimit lim;
-    //lim.rlim_cur = (1UL << 20);
-    //lim.rlim_max = (1UL << 20);
-    //setrlimit(RLIMIT_NOFILE, &lim);
+    struct rlimit lim;
+    lim.rlim_cur = (1UL << 20);
+    lim.rlim_max = (1UL << 20);
+    setrlimit(RLIMIT_NOFILE, &lim);
 
     //make and bind the socket
     if ((sfd = make_bound(SERVERPORT)) == -1) {
