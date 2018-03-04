@@ -25,6 +25,11 @@ int main(int argc, char ** argv) {
     struct epoll_event *events;
     epoll_data * data;
 
+    //struct rlimit lim;
+    //lim.rlim_cur = (1UL << 20);
+    //lim.rlim_max = (1UL << 20);
+    //setrlimit(RLIMIT_NOFILE, &lim);
+
     //make and bind the socket
     if ((sfd = make_bound(SERVERPORT)) == -1) {
         return 2;

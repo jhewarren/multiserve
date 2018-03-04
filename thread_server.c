@@ -1,69 +1,94 @@
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
-#include<sys/socket.h>
-#include<arpa/inet.h>
-#include<unistd.h>
-#include<pthread.h>
-#include <signal.h>
-#include "lib/socketwrapper.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <sys/resource.h>
 
-#define SERVERPORT 8000
-#define LIMIT 10000
-//gcc thread_server.c lib/socketwrapper.c -lpthread -o thread_server
-void *connection_handler(void *socket_desc)
+//the thread function
+void *connection_handler(void *);
+
+int main(int argc, char *argv[])
 {
+    int socket_desc, client_sock, c, *new_sock, clients = 0;
+    struct sockaddr_in server, client;
+    pthread_t sniffer_thread[65535];
 
-    //Get the socket descriptor
-    int sock = *(int*)socket_desc;
-    int read_size,e;
-    char *message;
-    //Receive a message from client
-    while(1)
+    struct rlimit lim;
+    lim.rlim_cur = (1UL << 20);
+    lim.rlim_max = (1UL << 20);
+    setrlimit(RLIMIT_NOFILE, &lim);
+
+    if ((socket_desc = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
-		if((read_size = RecvMsg(sock , message)) == -1)
-			break;
-		//Send the message back to client
-        if((e = SendMsg(sock , message)) == -1)
-			break;
-
-		//clear the message buffer
-		memset(message, 0, BUFLEN);
+        printf("Could not create socket");
     }
-    return 0;
-}
 
-int main(int argc , char *argv[])
-{
-    int socket_desc , *client_sock;
-    struct sockaddr_in server , *client;
+    //Prepare the sockaddr_in structure
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_port = htons(8000);
 
-    socket_desc = Socket(AF_INET , SOCK_STREAM , 0);
-
-	ConfigServerSocket((struct sockaddr_in *)&server,SERVERPORT);
-
-    Bind(socket_desc, (struct sockaddr_in *)&server);
-
-    Listen(socket_desc , LIMIT);
-
-    //Accept and incoming connection
-    client_sock = calloc(1,sizeof(struct sockaddr_in));
-	pthread_t thread_id;
-
-    while( (client_sock = Accept(socket_desc, (struct sockaddr_in *)client, (socklen_t*)client_sock)) )
+    if (bind(socket_desc, (struct sockaddr *)&server, sizeof(server)) < 0)
     {
-        if( pthread_create( &thread_id , NULL ,  connection_handler , (void*) client_sock) != 0)
+        perror("bind failed. Error");
+        return 1;
+    }
+
+    listen(socket_desc, SOMAXCONN);
+
+    printf("Waiting connections");
+    c = sizeof(struct sockaddr_in);
+
+    while (client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t *)&c))
+    {
+        printf("Connection accepted %d", client_sock);
+
+        new_sock = malloc(1);
+        *new_sock = client_sock;
+
+        if (pthread_create(&sniffer_thread[clients], NULL, connection_handler, (void *)new_sock) < 0)
         {
             perror("could not create thread");
             return 1;
         }
+        ++clients;
     }
 
     if (client_sock < 0)
     {
         perror("accept failed");
-        return 2;
+        return 1;
     }
+    return 0;
+}
+/*
+  This will handle connection for each client
+  */
+void *connection_handler(void *socket_desc)
+{
+    //Get the socket descriptor
+    int sock = *(int *)socket_desc;
+    int n;
 
+    char sendBuff[4096], client_message[4096];
+
+    while ((n = recv(sock, client_message, 4096, 0)) > 0)
+    {
+
+        send(sock, client_message, n, 0);
+    }
+    close(sock);
+
+    if (n == 0)
+    {
+        printf("Client Disconnected %d", sock);
+    }
+    else
+    {
+        perror("recv failed");
+    }
     return 0;
 }
