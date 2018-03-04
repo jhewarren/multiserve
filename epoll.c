@@ -26,21 +26,18 @@ int main(int argc, char ** argv) {
     epoll_data * data;
 
     //make and bind the socket
-    sfd = make_bound(SERVERPORT);
-    if (sfd == -1) {
+    if ((sfd = make_bound(SERVERPORT)) == -1) {
         return 2;
     }
 
     //start listening
-    s = listen(sfd, SOMAXCONN);
-    if (s == -1) {
+    if ((s = listen(sfd, SOMAXCONN)) == -1) {
         perror("listen");
         return 3;
     }
 
     //register the epoll structure
-    efd = epoll_create1(0);
-    if (efd == -1) {
+    if ((efd = epoll_create1(0)) == -1) {
         perror ("epoll_create1");
         return 4;
     }
@@ -49,13 +46,11 @@ int main(int argc, char ** argv) {
     epoll_data_init(data, sfd);
     event.data.ptr = data;
     event.events = EPOLLIN | EPOLLET | EPOLLEXCLUSIVE;
-    s = epoll_ctl(efd, EPOLL_CTL_ADD, sfd, &event);
-    if (s == -1) {
+    if ((s = epoll_ctl(efd, EPOLL_CTL_ADD, sfd, &event)) == -1) {
         perror("epoll_ctl");
         return 5;
     }
 
-    // Buffer where events are returned (no more that 64 at the same time)
     events = calloc(MAXEVENTS, sizeof(event));
 
 #pragma omp parallel
