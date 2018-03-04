@@ -1,83 +1,72 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
+#include <sys/types.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
+#include <stdlib.h>
 #include <unistd.h>
-#include <pthread.h>
-#include <signal.h>
-#include "lib/socketwrapper.h"
 
-#define SERVERPORT 8000
-#define SERVER_IP "127.0.0.1"
-#define LIMIT 10000
+#define MAX_SIZE 4096
+#define NUM_CLIENT 5
 
-static char tBuf[BUFLEN];
-// gcc -Wall -ggdb -o mec client.c
+void *connection_handler(void *socket_desc);
 
-void *connection_handler(void *socket_desc)
+int main()
 {
-    //Get the socket descriptor
-    int *sock = (int*)socket_desc;
-    int read_size,e;
-    char *message = "Hi how are you!!!!";
-    //int e;
-    //Receive a message from client
-    while(1)
-    {
-        if((e = SendMsg(*sock , message)) == -1)
-			break;
-
-		if((read_size = RecvMsg(*sock , message)) == -1)
-			break;
-		//Send the message back to client
-		//clear the message buffer
-		memset(message, 0, BUFLEN);
-    }
-    return 0;
-}
-
-int main(int argc, char ** argv){
-    int port;
-    char *host;
-
-    switch(argc){
-		case 1:
-			host =	SERVER_IP;			// Host name
-			port =	SERVERPORT;	// default tcp port number
-		break;
-		case 2:
-			host =	argv[1];			// Host name
-			port =	SERVERPORT;	// default tcp port number
-		break;
-		case 3:
-			host =	argv[1];
-			port =	atoi(argv[2]);		// User specified port
-		break;
-		default:
-			fprintf(stderr, "Usage: %s host [port]\n", argv[0]);
-			exit(1);
-	}
-
-    int socket_desc;
-    struct sockaddr_in server;
-
-    while((socket_desc = Socket(AF_INET , SOCK_STREAM , 0))!=-1)
-    {
-        ConfigClientSocket((struct sockaddr_in *)&server, host, port);
-
-        Connect(socket_desc, (struct sockaddr_in)server);
-
-        //Accept and incoming connection
-        int *c = calloc(1,sizeof(struct sockaddr_in));
-    	pthread_t thread_id;
-
-        if( pthread_create( &thread_id , NULL ,  connection_handler , (void *)c)!=0)
+    int socket_desc , new_socket , c , *new_sock, i;
+    pthread_t sniffer_thread;
+    for (i=1; i<=NUM_CLIENT; i++) {
+        if( pthread_create( &sniffer_thread , NULL ,  connection_handler , (void*) i) < 0)
         {
             perror("could not create thread");
             return 1;
         }
+//        sleep(3);
+    }
+    pthread_exit(NULL);
+    return 0;
+}
+
+void *connection_handler(void *threadid)
+{
+    int threadnum = (int)threadid;
+    int sock_desc,i=1;
+    struct sockaddr_in serv_addr;
+    char sbuff[MAX_SIZE],rbuff[MAX_SIZE];
+    sprintf(sbuff,"%i> How's this for a buffer",threadnum);
+
+    if((sock_desc = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+        printf("Failed creating socket\n");
+
+    bzero((char *) &serv_addr, sizeof (serv_addr));
+
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    serv_addr.sin_port = htons(8000);
+
+    if (connect(sock_desc, (struct sockaddr *) &serv_addr, sizeof (serv_addr)) < 0) {
+        printf("Failed to connect to server\n");
     }
 
+    printf("Connected successfully client:%s initially\n", sbuff);
+    while(1)
+    {
+        printf("Sending: %s%d", sbuff,(i++)%1000);
+//        sprintf(sbuff,"%i%s",(i++)%10, sbuff);
+//        fgets(sbuff, MAX_SIZE , stdin);
+        send(sock_desc,sbuff,strlen(sbuff),0);
+//        printf("Sent: %i",strlen(sbuff));
+
+        if(recv(sock_desc,rbuff,MAX_SIZE,0)==0)
+            printf("Error");
+        else
+           fputs(rbuff,stdout);
+        printf("\t\tRcvd: %d\n",strlen(rbuff));
+
+        bzero(rbuff,MAX_SIZE);
+//        sleep(2);
+    }
+    close(sock_desc);
     return 0;
 }
