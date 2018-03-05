@@ -109,13 +109,12 @@ int Listen(int socket, int size) {
 ----------------------------------------------------------------------------------------------- */
 int Accept(int socket, struct sockaddr *addr, socklen_t *addrlen) {
 	int n;
-	printf("waiting for connection\n");
 	if((n = accept(socket, addr, addrlen)) < 0) {
 		perror("accept error\n");
 		close(socket);
 		return -1;
 	}
-	printf("Accepted connection %d",n);
+	printf("Accepted connection %d" ,n);
 	return n;
 }
 
