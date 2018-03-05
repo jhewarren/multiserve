@@ -1,0 +1,34 @@
+Summary created by Wireshark 2.4.4 (v2.4.4)
+
+File:
+   Name: /var/tmp/wireshark_eno1_20180305092026_SG9aIl.pcapng
+   Length: 525198690 bytes
+   Format: Wireshark/... - pcapng
+   Encapsulation: Ethernet
+
+
+Time:
+   First packet: 2018-03-05 09:20:27
+   Last packet: 2018-03-05 09:22:34
+   Elapsed: 00:02:07
+
+
+Capture:
+   Capture HW: Intel(R) Core(TM) i5-4590 CPU @ 3.30GHz (with SSE4.2)
+   OS: Linux 4.15.3-300.fc27.x86_64
+   Capture application: Dumpcap (Wireshark) 2.4.4 (v2.4.4)
+
+   eno1:
+      Dropped packets: 0 (0.000%)
+      Capture filter: none
+      Link type: Ethernet
+      Packet size limit 262144 bytes
+
+Statistics:
+   Packets: 297506
+   Between first and last packet:127.360 sec
+   Avg. packets/sec: 2335.941
+   Avg packet size: 1731.384 bytes
+   Bytes: 515097010
+   Avg bytes/sec: 4044409.842
+   Avg Mbit/sec: 32.355

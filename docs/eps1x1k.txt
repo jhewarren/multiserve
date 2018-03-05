@@ -1,0 +1,5 @@
+Connected #1 in 0.000591s
+
+
+Client 1 connected in 0.000591; 1000 messages in 0.000001/0.000918/0.000051s
+
