@@ -14,7 +14,7 @@ void *connection_handler(void *socket_desc);
 
 int main()
 {
-    int socket_desc , new_socket , c , *new_sock, i;
+    int i;
     pthread_t sniffer_thread;
     for (i=1; i<=NUM_CLIENT; i++) {
         if( pthread_create( &sniffer_thread , NULL ,  connection_handler , (void*) i) < 0)
@@ -62,7 +62,7 @@ void *connection_handler(void *threadid)
             printf("Error");
         else
            fputs(rbuff,stdout);
-        printf("\t\tRcvd: %d\n",strlen(rbuff));
+        printf("\t\tRcvd: %lu\n",strlen(rbuff));
 
         bzero(rbuff,MAX_SIZE);
 //        sleep(2);
