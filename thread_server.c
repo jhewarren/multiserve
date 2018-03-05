@@ -64,16 +64,14 @@ int main(int argc, char *argv[])
     }
     return 0;
 }
-/*
-  This will handle connection for each client
-  */
+
 void *connection_handler(void *socket_desc)
 {
     //Get the socket descriptor
     int sock = *(int *)socket_desc;
     int n;
 
-    char sendBuff[4096], client_message[4096];
+    char client_message[4096];
 
     while ((n = recv(sock, client_message, 4096, 0)) > 0)
     {
