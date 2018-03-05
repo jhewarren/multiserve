@@ -86,6 +86,7 @@ int main (int argc, char **argv){
 			fprintf(stderr, "Usage: %s [host port clients]\n", argv[0]);
 			exit(1);
 	}
+//    printf("\n\tCurrent Config: %s:%d x %d\n\n",server, sport, clients);
 
     
     for (i=1; i<=clients; i++) {
@@ -96,6 +97,7 @@ int main (int argc, char **argv){
         }
     }
     pthread_exit(NULL);
+
     return 0;
 }
 

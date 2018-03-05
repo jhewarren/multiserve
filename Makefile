@@ -9,7 +9,7 @@ SW=lib/socketwrapper.c
 all: mec ths polls eps
 
 clean :
-	rm -f *.o mec ths epoll polls core* *~
+	rm -f *.o mec ths eps polls core* *~
 
 mec:
 	$(CC) $(TH) $(CFLAGS) client.c -o mec
