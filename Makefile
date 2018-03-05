@@ -1,21 +1,25 @@
-# make for mping
+# make for multiserve
 
 CC=gcc
 CFLAGS=-Wall -ggdb
+TH=-pthread
+MP=-fopenmp
+SW=lib/socketwrapper.c
 
-mping: mping.o proc_v4.o send_v4.o
-	$(CC) $(CFLAGS) mping.o proc_v4.o send_v4.o -o mping
+all: mec ths polls eps
 
-clean:
-	rm -f *.o mping core* *~
+clean :
+	rm -f *.o mec ths epoll polls core* *~
 
-mping.o: mping.c
-	$(CC) $(CFLAGS) -O -c mping.c
+mec:
+	$(CC) $(TH) $(CFLAGS) client.c -o mec
 
-proc_v4.o: proc_v4.c
-	$(CC) $(CFLAGS) -O -c proc_v4.c
+ths:
+	$(CC) $(TH) $(CFLAGS) thread_server.c $(SW) -o ths
 
-send_v4.o: send_v4.c
-	$(CC) $(CFLAGS) -O -c send_v4.c
+eps:
+	$(CC) $(MP) $(CFLAGS) epoll.c -o eps
 
+polls:
+	$(CC) $(CFLAGS) poll_server.c $(SW) -o polls
 
