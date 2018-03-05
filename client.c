@@ -1,14 +1,15 @@
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 #define MAX_SIZE 4096
-#define CLIENTS 5000
+#define CLIENTS 5
 #define SERVER "127.0.0.1"
 #define SPORT 8000
 
@@ -17,13 +18,20 @@ static int sport;
 static int clients;
 
 // gcc -Wall -ggdb -pthreads client.c -o mec
+// tcpdump -i eth0 host 192.168.1.3 and port 5060 -n -s 0 -vvv -w /usr/src/dump
+// - nload is the full card speeds
+// - iftop is per destination
+// - nethogs is per program
 
 void *connection_handler(void *threadid){
     int threadnum = (int)threadid;
     int sock_desc,i=1;
     struct sockaddr_in serv_addr;
     char sbuff[MAX_SIZE],rbuff[MAX_SIZE];
-    sprintf(sbuff,"%i> How's this for a buffer",threadnum);
+    struct timespec tstart,tend;
+    float dconn, decho;
+    
+//    sprintf(sbuff,"%i> How's this for a buffer",threadnum);
 
     if((sock_desc = socket(AF_INET, SOCK_STREAM, 0)) < 0)
         printf("Failed creating socket\n");
@@ -34,23 +42,29 @@ void *connection_handler(void *threadid){
     serv_addr.sin_addr.s_addr = inet_addr(server);
     serv_addr.sin_port = htons(sport);
 
+    clock_gettime(CLOCK_MONOTONIC, &tstart);
     if (connect(sock_desc, (struct sockaddr *) &serv_addr, sizeof (serv_addr)) < 0) {
         printf("Failed to connect to server\n");
     }
+    clock_gettime(CLOCK_MONOTONIC, &tend);
+    dconn =     ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) -
+    ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec);
 
-    printf("Connected successfully client:%s initially\n", sbuff);
+    printf("Connected #%d in %fms\n", threadnum, dconn);
     while(1)
     {
-        printf("Sending: %s%d", sbuff,(i++)%1000);
+//        printf("Sending: %s%d", sbuff,(i++)%1000);
         send(sock_desc,sbuff,strlen(sbuff),0);
+        clock_gettime(CLOCK_MONOTONIC, &tstart);
 
         if(recv(sock_desc,rbuff,MAX_SIZE,0)==0)
             printf("Error");
-        else
-//           fputs(rbuff,stdout);
-            printf("\t\tRcvd: %lu\n",strlen(rbuff));
-
-        bzero(rbuff,MAX_SIZE);
+        else {
+            decho = ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) -
+            ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec);
+            printf("Client %d #%d Tx/Rx: %lu/%lu in %fms\n",threadnum, i++, strlen(sbuff),strlen(rbuff),decho );
+        }
+            bzero(rbuff,MAX_SIZE);
 //        sleep(2);
     }
     close(sock_desc);
